@@ -501,6 +501,15 @@ print_conn_def (FILE * fp) {
   if (!conf.real_time_html)
     return;
 
+  int html = 0;
+
+  /* HTML */
+  if (find_output_type (NULL, "html", 0) == 0)
+    html = 1;
+
+  if (!html)
+    return;
+
   fprintf (fp, "<script type='text/javascript'>");
   fprintf (fp, "var connection = ");
 

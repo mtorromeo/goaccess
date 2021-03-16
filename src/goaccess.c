@@ -873,10 +873,13 @@ process_html (const char *filename) {
     .tv_nsec = 0,
   };
 
-  /* render report */
-  pthread_mutex_lock (&gdns_thread.mutex);
-  output_html (holder, filename);
-  pthread_mutex_unlock (&gdns_thread.mutex);
+  if (filename) {
+    /* render report */
+    pthread_mutex_lock (&gdns_thread.mutex);
+    output_html (holder, filename);
+    pthread_mutex_unlock (&gdns_thread.mutex);
+  }
+
   /* not real time? */
   if (!conf.real_time_html)
     return;
@@ -1445,14 +1448,8 @@ spawn_ws (void) {
 
 static void
 set_standard_output (void) {
-  int html = 0;
-
-  /* HTML */
-  if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
-    html = 1;
-
   /* Spawn WebSocket server threads */
-  if (html && conf.real_time_html) {
+  if (conf.real_time_html) {
     if (spawn_ws ())
       return;
   }
@@ -1514,7 +1511,7 @@ main (int argc, char **argv) {
   if (conf.process_and_exit) {
   }
   /* set stdout */
-  else if (conf.output_stdout) {
+  else if (conf.output_stdout || conf.real_time_html) {
     set_standard_output ();
   }
   /* set curses */
@@ -1553,7 +1550,7 @@ main (int argc, char **argv) {
   if (conf.process_and_exit) {
   }
   /* stdout */
-  else if (conf.output_stdout) {
+  else if (conf.output_stdout || conf.real_time_html) {
     standard_output ();
   }
   /* curses */
